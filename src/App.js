@@ -1,32 +1,35 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import React from "react";
-import Home from "./PagesCompo/Home";
-import Navbar from "./components/Navbar";
-import Popular from "./PagesCompo/Popular";
-import Trending from "./PagesCompo/Trending";
-import AllDrama from "./PagesCompo/AllDrama";
-import "./App.css"
-function App () {
 
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import Home from './pages/Home';
+import Trending from './pages/Trending';
+import Popular from './pages/Popular';
+import AllDrama from './pages/AllDrama';
+
+import './App.css';
+
+import { useState } from 'react';
+
+function App() {
+  
+  const [searchQuery, setSearchQuery] = useState('');
   return (
     <Router>
-        
-    <div>
-      <h3 className="App">Asian movie web</h3>
-
-      <Navbar/>
-      <Routes>
-
-        <Route path="/" element={<Home/>}/>
-        <Route path="/trending" element={<Trending/>}/>
-        <Route path="/popular" element={<Popular/>}/>
-        <Route path="/all_drama" element={<AllDrama/>}/>
-
-      </Routes>
-    </div>
-
+      <div className="App">
+        <Navbar setSearchQuery={setSearchQuery}/>
+        <Routes>
+          <Route path="/" element={<Home searchQuery={searchQuery}/>} />
+          <Route path="/trending" element={<Trending />} />
+          <Route path="/popular" element={<Popular />} />
+          <Route path="/all-drama" element={<AllDrama />} />
+          
+        </Routes>
+        <Footer />
+      </div>
     </Router>
-  )
-};
+  );
+}
 
 export default App;
