@@ -14,7 +14,7 @@ const Navbar = ({ setSearchQuery }) => {
         <li><Link to="/">Home</Link></li>
         <li><Link to="/trending">Trending</Link></li>
         <li><Link to="/popular">Popular</Link></li>
-        <li><Link to="/all-drama">All Drama</Link></li>
+        
       </ul>
       <input
         type="text"

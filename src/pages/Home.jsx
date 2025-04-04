@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 
 function Home({ searchQuery }) {
@@ -9,22 +8,17 @@ function Home({ searchQuery }) {
   
   // State for adding/updating movies
   const [newMovie, setNewMovie] = useState({
+    id: null,
     title: '',
     category: '',
     description: '',
     year: '',
-    video_url: '' // Changed to video_url
+    video_url: ''
   });
-
-  const getYouTubeID = (url) => {
-    const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-    const match = url.match(regex);
-    return match ? match[1] : null;
-  };
 
   // Fetch Chinese dramas
   useEffect(() => {
-    fetch('http://localhost:3000/cdrama')
+    fetch('https://json-server-movies-oy4o.onrender.com/cdrama')
       .then((response) => response.json())
       .then((data) => {
         setChineseDramas(data);
@@ -37,7 +31,7 @@ function Home({ searchQuery }) {
 
   // Fetch Korean dramas
   useEffect(() => {
-    fetch('http://localhost:3000/kdrama')
+    fetch('https://json-server-movies-oy4o.onrender.com/kdrama')
       .then((response) => response.json())
       .then((data) => setKoreanDramas(data))
       .catch((error) => console.log("Error fetching Korean dramas:", error));
@@ -45,39 +39,59 @@ function Home({ searchQuery }) {
 
   // Fetch Thailand dramas
   useEffect(() => {
-    fetch('http://localhost:3000/thai_movies')
+    fetch('https://json-server-movies-oy4o.onrender.com/thai_movies')
       .then((response) => response.json())
       .then((data) => setThailandDramas(data))
       .catch((error) => console.log("Error fetching Thailand dramas:", error));
   }, []);
 
-  const handleSelectMovie = (movie) => {
-    setFeaturedMovie(movie);
+  const getYouTubeID = (url) => {
+    const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
   };
 
-  
+  const handleSelectMovie = (movie) => {
+    setFeaturedMovie(movie);
+    setNewMovie(movie); // Set selected movie for editing
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setNewMovie({ ...newMovie, [name]: value });
   };
 
-  // Handle form submission to add a new movie
+  // Handle form submission to add or update a movie
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    console.log('New Movie:', newMovie);
+    if (newMovie.id) {
+      // Update existing movie
+      if (newMovie.category.includes("Chinese")) {
+        setChineseDramas(chineseDramas.map(movie => movie.id === newMovie.id ? newMovie : movie));
+      } else if (newMovie.category.includes("Korean")) {
+        setKoreanDramas(koreanDramas.map(movie => movie.id === newMovie.id ? newMovie : movie));
+      } else if (newMovie.category.includes("Thailand")) {
+        setThailandDramas(thailandDramas.map(movie => movie.id === newMovie.id ? newMovie : movie));
+      }
+    } else {
+      // Add new movie
+      const newId = Date.now(); 
+      setChineseDramas([...chineseDramas, { id: newId, ...newMovie }]);
+    }
 
+    // Reset form
     setNewMovie({
+      id: null,
       title: '',
       category: '',
       description: '',
       year: '',
-      video_url: '' 
+      video_url: ''
     });
-
-    const newId = Date.now(); 
-    setChineseDramas([...chineseDramas, { id: newId, ...newMovie }]);
     
+    // Reset featured movie after adding/updating
+    setFeaturedMovie(null);
   };
 
   // Handle delete movie
@@ -85,7 +99,7 @@ function Home({ searchQuery }) {
     setChineseDramas(chineseDramas.filter(movie => movie.id !== id));
     setKoreanDramas(koreanDramas.filter(movie => movie.id !== id));
     setThailandDramas(thailandDramas.filter(movie => movie.id !== id));
-    
+
     if (featuredMovie && featuredMovie.id === id) {
       setFeaturedMovie(null); 
     }
@@ -112,7 +126,7 @@ function Home({ searchQuery }) {
             <iframe
               width="560"
               height="315"
-              src={featuredMovie.video_url} 
+              src={`https://www.youtube.com/embed/${getYouTubeID(featuredMovie.video_url)}`} 
               title={featuredMovie.title}
               allow="autoplay; encrypted-media"
               allowFullScreen
@@ -126,15 +140,14 @@ function Home({ searchQuery }) {
         )}
       </div>
 
-     
       <form onSubmit={handleSubmit}>
-        <h3>Add New Movie</h3>
+        <h3>{newMovie.id ? "Update Movie" : "Add New Movie"}</h3>
         <input type="text" name="title" placeholder="Title" value={newMovie.title} onChange={handleChange} required />
         <input type="text" name="category" placeholder="Category" value={newMovie.category} onChange={handleChange} required />
         <textarea name="description" placeholder="Description" value={newMovie.description} onChange={handleChange} required></textarea>
         <input type="text" name="year" placeholder="Year" value={newMovie.year} onChange={handleChange} required />
         <input type="text" name="video_url" placeholder="YouTube Video URL" value={newMovie.video_url} onChange={handleChange} required /> 
-        <button type="submit">Add Movie</button>
+        <button type="submit">{newMovie.id ? "Update Movie" : "Add Movie"}</button>
       </form>
 
       <div className="category-section">
