@@ -6,7 +6,7 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import Trending from './pages/Trending';
 import Popular from './pages/Popular';
-import AllDrama from './pages/AllDrama';
+
 
 import './App.css';
 
@@ -23,7 +23,7 @@ function App() {
           <Route path="/" element={<Home searchQuery={searchQuery}/>} />
           <Route path="/trending" element={<Trending />} />
           <Route path="/popular" element={<Popular />} />
-          <Route path="/all-drama" element={<AllDrama />} />
+
           
         </Routes>
         <Footer />
